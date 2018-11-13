@@ -506,6 +506,7 @@ public class World
         if (a.equals(A_CLIMB))
         {
             isInPit = false;
+            return true;
         }
         
         //Action failed
