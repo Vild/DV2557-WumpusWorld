@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.awt.*;
 import java.io.File;
 import java.util.Vector;
+import wumpusworld.neuralnetwork.debug.NeuralStatePanel;
 
 /**
  * GUI for the Wumpus World. Only supports worlds of 
@@ -34,11 +35,25 @@ public class GUI implements ActionListener
     private ImageIcon l_player_left;
     private ImageIcon l_player_right;
     
+    
+    /* Debug stuff */
+    public NeuralStatePanel neuralPane;
+    static public GUI instance;
+    
+    static public void updateNeuralStatePanel() {
+        if (instance == null)
+            return;
+        instance.neuralPane.update();
+        instance.frame.revalidate();
+        instance.frame.repaint();
+    }
+    
     /**
      * Creates and start the GUI.
      */
     public GUI()
     {
+        this.instance = this;
         if (!checkResources())
         {
             JOptionPane.showMessageDialog(null, "Unable to start GUI. Missing icons.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -111,7 +126,7 @@ public class GUI implements ActionListener
     private void createWindow()
     {
         frame = new JFrame("Wumpus World");
-        frame.setSize(820, 640);
+        frame.setSize(820+1400, 1300);
         frame.getContentPane().setLayout(new FlowLayout());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         
@@ -200,6 +215,9 @@ public class GUI implements ActionListener
         buttons.add(bn);
         
         frame.getContentPane().add(buttons);
+        
+        neuralPane = new NeuralStatePanel();
+        frame.getContentPane().add(neuralPane);
         
         updateGame();
         

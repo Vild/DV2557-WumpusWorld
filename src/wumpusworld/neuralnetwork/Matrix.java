@@ -27,9 +27,6 @@ public class Matrix {
         assert (columns == otherRows);
 
         float[][] outputMatrix = new float[rows][otherColumns];
-        /*for (int i = 0; i < rows; i++)
-            for (int j = 0; j < otherColumns; j++)
-                outputMatrix[i][j] = 0;*/
 
         for (int row = 0; row < rows; row++)
             for (int otherColum = 0; otherColum < otherColumns; otherColum++)
@@ -59,7 +56,7 @@ public class Matrix {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Matrix[");
-        sb.append(getRows()); 
+        sb.append(getRows());
         sb.append("][");
         sb.append(getColumns());
         sb.append("]\n");
@@ -72,6 +69,5 @@ public class Matrix {
         }
         return sb.toString();
     }
-    
-    
+
 }

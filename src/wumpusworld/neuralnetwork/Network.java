@@ -2,8 +2,11 @@ package wumpusworld.neuralnetwork;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
+import wumpusworld.GUI;
 import wumpusworld.World;
 
 /**
@@ -39,6 +42,8 @@ public class Network {
 
     public ScoreHandler scoreHandler;
 
+    static AtomicBoolean updatingUI = new AtomicBoolean();
+
     public Network(World world) {
         input = new InputLayer(world);
         hiddenLayer1 = new Layer(input, input.getNeuronCount());
@@ -47,7 +52,7 @@ public class Network {
         hiddenLayer2.randomize();
         output = new OutputLayer(hiddenLayer2);
         output.randomize();
-        
+
         scoreHandler = new ScoreHandler();
     }
 
@@ -60,17 +65,45 @@ public class Network {
         hiddenLayer2.exportState(sb, 2);
         output.exportState(sb, 3);
 
-        try (FileWriter fw = new FileWriter("state.dot")) {
-            fw.write("digraph State {\n");
-            fw.write("\tnodesep=1;\n");
-            fw.write("\tsplines=line\n");
-            fw.write("\trankdir=LR;\n");
-            fw.write("\tnode[shape=record,width=1,height=0.1];\n");
-            fw.write(sb.toString());
-            fw.write("}\n");
-        } catch (IOException ex) {
-            Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        if (GUI.instance != null)
+            try (FileWriter fw = new FileWriter("state.dot")) {
+                fw.write("digraph State {\n");
+                fw.write("graph [fontname=\"Monospace\",fontsize=10];\n");
+                fw.write("node [fontname=\"Monospace\",fontsize=10];\n");
+                fw.write("edge [fontname=\"Monospace\",fontsize=10];\n");
+                fw.write("\tnodesep=1;\n");
+                fw.write("\tsplines=line\n");
+                fw.write("\trankdir=LR;\n");
+                fw.write("\tnode[shape=record,width=0.9,height=0.1];\n");
+                fw.write(sb.toString());
+                fw.write("}\n");
+                fw.close();
+
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (updatingUI.compareAndExchange(false, true) == false)
+                            return;
+                        try {
+                            Runtime.getRuntime().exec("dot -Tpng state.dot -o state.png").waitFor();
+                        } catch (IOException | InterruptedException ex) {
+                            Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                GUI.updateNeuralStatePanel();
+                                updatingUI.set(false);
+                            }
+                        });
+                    }
+                });
+                t.start();
+
+            } catch (IOException ex) {
+                Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
         if (output.goUp)
             return Action.goUp;
