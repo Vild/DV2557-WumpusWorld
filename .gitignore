@@ -1,3 +1,5 @@
 build/
 state.*
-/dist/
+/dist
+nbproject/private
+
