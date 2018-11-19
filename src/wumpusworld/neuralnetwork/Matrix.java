@@ -1,5 +1,8 @@
 package wumpusworld.neuralnetwork;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import jdk.internal.joptsimple.internal.Strings;
 
 /**
@@ -16,6 +19,22 @@ public class Matrix {
 
     public Matrix(float[][] data) {
         this.data = data;
+    }
+    
+    @Override
+    public Matrix clone() {
+        return new Matrix(data.clone());
+    }
+
+    public Matrix(DataInputStream is) throws IOException {
+        int rows = is.readInt();
+        int columns = is.readInt();
+
+        data = new float[rows][columns];
+
+        for (int row = 0; row < rows; row++)
+            for (int column = 0; column < columns; column++)
+                data[row][column] = is.readFloat();
     }
 
     public Matrix mul(Matrix other) {
@@ -68,6 +87,16 @@ public class Matrix {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    public void save(DataOutputStream os) throws IOException {
+        int rows = data.length;
+        os.writeInt(rows);
+        int columns = data[0].length;
+        os.writeInt(columns);
+        for (int row = 0; row < rows; row++)
+            for (int column = 0; column < columns; column++)
+                os.writeFloat(data[row][column]);
     }
 
 }

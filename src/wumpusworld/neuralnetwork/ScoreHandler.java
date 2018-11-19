@@ -6,23 +6,32 @@ package wumpusworld.neuralnetwork;
  */
 public class ScoreHandler {
 
-    private float score;
-    private boolean done;
+    private float score = 0;
+    private boolean done = false;
 
-    private int tickCounter;
+    private int tickCounter = 1;
+    
+    public boolean isDone() { return done;}
+
+    public void reset() {
+        score = 0;
+        done = false;
+        tickCounter = 1;
+    }
 
     public void newTick() {
         if (done)
             return;
 
-        tickCounter++;
+        //tickCounter++;
+        score += 10f;
     }
 
     public void inHole() {
         if (done)
             return;
 
-        score -= 2 * tickCounter;
+        score -= 5f * tickCounter;
     }
 
     public void finished() {
@@ -30,7 +39,7 @@ public class ScoreHandler {
             return;
 
         done = true;
-        score += 1000 * tickCounter;
+        score += 50f * tickCounter;
     }
 
     public void died() {
@@ -38,32 +47,45 @@ public class ScoreHandler {
             return;
 
         done = true;
-        score -= 1 * tickCounter * tickCounter;
+        score -= 100f * tickCounter * tickCounter;
     }
 
     public void invalidMove() {
         if (done)
             return;
 
-        score -= 1 / tickCounter;
+        score -= 50f / tickCounter;
+        done = true;
     }
 
     public void exploredNewTile() {
         if (done)
             return;
 
-        score += 10 / tickCounter;
+        score += 40f / tickCounter;
     }
 
     public void exploredOldTile() {
         if (done)
             return;
 
-        score += 1 / tickCounter;
+        score += 20f / tickCounter;
     }
 
     public float getScore() {
         return score;
+    }
+
+    public void noMoreMoves() {
+        score -= 25f;
+    }
+    
+    public void changedDirection() {
+        score += 40f;
+    }
+
+    public void submitWorldScore(int score) {
+        this.score += score;
     }
 
 }

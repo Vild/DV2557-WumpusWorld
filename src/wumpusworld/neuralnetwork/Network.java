@@ -1,7 +1,17 @@
 package wumpusworld.neuralnetwork;
 
+import wumpusworld.neuralnetwork.layer.OutputLayer;
+import wumpusworld.neuralnetwork.layer.InputLayer;
+import wumpusworld.neuralnetwork.layer.Layer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,10 +47,13 @@ public class Network {
     public InputLayer input;
     public Layer hiddenLayer1;
     public Layer hiddenLayer2;
+    public Layer hiddenLayer3;
 
     public OutputLayer output;
 
     public ScoreHandler scoreHandler;
+
+    private float finalScore;
 
     static AtomicBoolean updatingUI = new AtomicBoolean();
 
@@ -50,10 +63,69 @@ public class Network {
         hiddenLayer1.randomize();
         hiddenLayer2 = new Layer(hiddenLayer1, input.getNeuronCount());
         hiddenLayer2.randomize();
-        output = new OutputLayer(hiddenLayer2);
+        hiddenLayer3 = new Layer(hiddenLayer2, input.getNeuronCount());
+        hiddenLayer3.randomize();
+        output = new OutputLayer(hiddenLayer3);
         output.randomize();
 
         scoreHandler = new ScoreHandler();
+    }
+
+    public Network(World world, String filePath) {
+        try (DataInputStream is = new DataInputStream(new FileInputStream(filePath))) {
+            input = new InputLayer(world, is);
+            hiddenLayer1 = new Layer(input, is);
+            hiddenLayer2 = new Layer(hiddenLayer1, is);
+            hiddenLayer3 = new Layer(hiddenLayer2, is);
+            output = new OutputLayer(hiddenLayer3, is);
+            scoreHandler = new ScoreHandler();
+        } catch (IOException ex) {
+            Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private Network(Network other) {
+        input = new InputLayer(other.input);
+        hiddenLayer1 = new Layer(this.input, other.hiddenLayer1);
+        hiddenLayer2 = new Layer(this.hiddenLayer1, other.hiddenLayer2);
+        hiddenLayer3 = new Layer(this.hiddenLayer2, other.hiddenLayer3);
+        output = new OutputLayer(this.hiddenLayer3, other.output);
+        scoreHandler = new ScoreHandler();
+    }
+    
+    @Override
+    public Network clone() {
+        return new Network(this);
+    }
+
+    public Network combine(Network other) {
+        Network newNetwork = new Network(this);
+
+        newNetwork.hiddenLayer1.combine(other.hiddenLayer1);
+        newNetwork.hiddenLayer2.combine(other.hiddenLayer2);
+        newNetwork.hiddenLayer3.combine(other.hiddenLayer3);
+        newNetwork.output.combine(other.output);
+
+        return newNetwork;
+    }
+
+    public void addMutations() {
+        hiddenLayer1.mutate();
+        hiddenLayer2.mutate();
+        hiddenLayer3.mutate();
+        output.mutate();
+    }
+
+    public void setWorld(World world) {
+        input.setWorld(world);
+        finalScore += scoreHandler.getScore();
+        scoreHandler.reset();
+    }
+
+    public float getFinalScore() {
+        finalScore += scoreHandler.getScore();
+        scoreHandler.reset();
+        return finalScore;
     }
 
     public Action update() throws Exception {
@@ -125,4 +197,23 @@ public class Network {
         throw new Exception("Invalid action");
     }
 
+    public boolean save(String folderPath, String filePath) {
+        try {
+            Files.createDirectories(Path.of(folderPath));
+
+            try (DataOutputStream os = new DataOutputStream(new FileOutputStream(Path.of(folderPath, filePath).toString()))) {
+                input.save(os);
+                hiddenLayer1.save(os);
+                hiddenLayer2.save(os);
+                hiddenLayer3.save(os);
+                output.save(os);
+            }
+
+            return true;
+
+        } catch (IOException ex) {
+            Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
 }

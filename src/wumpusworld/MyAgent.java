@@ -21,13 +21,28 @@ public class MyAgent implements Agent {
      * @param world Current world state
      */
     public MyAgent(World world) {
+        // TODO: Load the best network here
+        this(world, new Network(world, "/tmp/wumpus/networks/09/network_00.dat"));
+    }
+
+    public MyAgent(World world, Network network) {
         w = world;
-        network = new Network(world);
+        this.network = network;
+    }
+
+    public void setWorld(World world) {
+        w = world;
+        network.setWorld(world);
+    }
+
+    public Network getNetwork() {
+        return network;
     }
 
     /**
      * Asks your solver agent to execute an action.
      */
+    @Override
     public void doAction() {
         network.scoreHandler.newTick();
         //Location of the player
@@ -56,7 +71,7 @@ public class MyAgent implements Agent {
         }
 
         //Test the environment
-        if (w.hasBreeze(cX, cY))
+        /*if (w.hasBreeze(cX, cY))
             System.out.println("I am in a Breeze");
         if (w.hasStench(cX, cY))
             System.out.println("I am in a Stench");
@@ -69,8 +84,7 @@ public class MyAgent implements Agent {
         if (w.getDirection() == World.DIR_UP)
             System.out.println("I am facing Up");
         if (w.getDirection() == World.DIR_DOWN)
-            System.out.println("I am facing Down");
-
+            System.out.println("I am facing Down");*/
         Network.Action out;
         try {
             out = network.update();
@@ -113,10 +127,12 @@ public class MyAgent implements Agent {
             else
                 network.scoreHandler.exploredOldTile();
 
-        System.out.printf("New score: %f\n", network.scoreHandler.getScore());
+        //System.out.printf("New score: %f\n", network.scoreHandler.getScore());
     }
 
     private void turnTo(int i) {
+        if (((w.getDirection() + 2) % 4) != i)
+            network.scoreHandler.changedDirection();
         if (i < w.getDirection())
             do {
                 w.doAction(World.A_TURN_LEFT);

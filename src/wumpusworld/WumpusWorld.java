@@ -1,13 +1,22 @@
 package wumpusworld;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Vector;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import wumpusworld.neuralnetwork.Network;
+import wumpusworld.neuralnetwork.Teacher;
+
 /**
- * Starting class for the Wumpus World program. The program
- * has three options: 1) Run a GUI where the Wumpus World can be
- * solved step by step manually or by an agent, or 2) run
- * a simulation with random worlds over a number of games,
+ * Starting class for the Wumpus World program. The program has three options:
+ * 1) Run a GUI where the Wumpus World can be solved step by step manually or by
+ * an agent, or 2) run a simulation with random worlds over a number of games,
  * or 3) run a simulation over the worlds read from a map file.
- * 
+ *
  * @author Johan Hagelbäck
  */
 public class WumpusWorld {
@@ -15,94 +24,86 @@ public class WumpusWorld {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         WumpusWorld ww = new WumpusWorld();
     }
-    
+
     /**
      * Starts the program.
-     * 
+     *
      */
-    public WumpusWorld()
-    {
+    public WumpusWorld() {
         String option = Config.getOption();
-        
+
         if (option.equalsIgnoreCase("gui"))
-        {
             showGUI();
-        }
         if (option.equalsIgnoreCase("sim"))
-        {
             runSimulator();
-        }
         if (option.equalsIgnoreCase("simdb"))
-        {
             runSimulatorDB();
-        }
+        if (option.equalsIgnoreCase("learning"))
+            runLearning();
     }
-    
+
     /**
      * Starts the program in GUI mode.
      */
-    private void showGUI()
-    {
+    private void showGUI() {
         GUI g = new GUI();
     }
-    
+
     /**
-     * Starts the program in simulator mode with
-     * maps read from a data file.
+     * Starts the program in simulator mode with maps read from a data file.
      */
-    private void runSimulatorDB()
-    {
+    private void runSimulatorDB() {
         MapReader mr = new MapReader();
         Vector<WorldMap> maps = mr.readMaps();
-        
+
         double totScore = 0;
-        for (int i = 0; i < maps.size(); i++)
-        {
+        for (int i = 0; i < maps.size(); i++) {
             World w = maps.get(i).generateWorld();
-            totScore += (double)runSimulation(w);
+            totScore += (double) runSimulation(w);
         }
-        totScore = totScore / (double)maps.size();
+        totScore = totScore / (double) maps.size();
         System.out.println("Average score: " + totScore);
     }
-    
+
     /**
-     * Starts the program in simulator mode
-     * with random maps.
+     * Starts the program in simulator mode with random maps.
      */
-    private void runSimulator()
-    {
+    private void runSimulator() {
         double totScore = 0;
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             WorldMap w = MapGenerator.getRandomMap(i);
-            totScore += (double)runSimulation(w.generateWorld());
+            totScore += (double) runSimulation(w.generateWorld());
         }
-        totScore = totScore / (double)10;
+        totScore = totScore / (double) 10;
         System.out.println("Average score: " + totScore);
     }
-    
+
     /**
-     * Runs the solver agent for the specified Wumpus
-     * World.
-     * 
+     * Runs the solver agent for the specified Wumpus World.
+     *
      * @param w Wumpus World
      * @return Achieved score
      */
-    private int runSimulation(World w)
-    {
+    private int runSimulation(World w) {
         int actions = 0;
         Agent a = new MyAgent(w);
-        while (!w.gameOver())
-        {
+        while (!w.gameOver()) {
             a.doAction();
             actions++;
         }
         int score = w.getScore();
         System.out.println("Simulation ended after " + actions + " actions. Score " + score);
         return score;
+    }
+
+    /**
+     * Teach the network stuff.
+     */
+    private void runLearning() {
+        Teacher t = new Teacher();
+        t.run();
     }
 }

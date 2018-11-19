@@ -1,4 +1,8 @@
-package wumpusworld.neuralnetwork;
+package wumpusworld.neuralnetwork.layer;
+
+import wumpusworld.neuralnetwork.layer.Layer;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 /**
  *
@@ -20,8 +24,16 @@ public class OutputLayer extends Layer {
         super(before, 8);
     }
 
+    public OutputLayer(Layer before, DataInputStream is) throws IOException {
+        super(before, is);
+    }
+
+    public OutputLayer(Layer before, OutputLayer outputLayer) {
+        super(before, outputLayer);
+    }
+
     @Override
-    void update() {
+    public void update() {
         super.update();
 
         goUp = goRight = goDown = goLeft = false;
@@ -63,7 +75,7 @@ public class OutputLayer extends Layer {
     }
 
     @Override
-    void exportState(StringBuilder sb, int prefix) {
+    public void exportState(StringBuilder sb, int prefix) {
         super.exportState(sb, prefix);
         exportVariable(sb, prefix, 0, "goUp", goUp);
         exportVariable(sb, prefix, 1, "goRight", goRight);
