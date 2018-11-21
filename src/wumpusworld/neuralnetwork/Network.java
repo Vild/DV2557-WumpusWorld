@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -135,7 +134,8 @@ public class Network {
         input.exportState(sb, 0);
         hiddenLayer1.exportState(sb, 1);
         hiddenLayer2.exportState(sb, 2);
-        output.exportState(sb, 3);
+        hiddenLayer2.exportState(sb, 3);
+        output.exportState(sb, 4);
 
         if (GUI.instance != null)
             try (FileWriter fw = new FileWriter("state.dot")) {
@@ -151,25 +151,19 @@ public class Network {
                 fw.write("}\n");
                 fw.close();
 
-                Thread t = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (updatingUI.compareAndExchange(false, true) == false)
-                            return;
-                        try {
-                            Runtime.getRuntime().exec("dot -Tpng state.dot -o state.png").waitFor();
-                        } catch (IOException | InterruptedException ex) {
-                            Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                GUI.updateNeuralStatePanel();
-                                updatingUI.set(false);
-                            }
-                        });
+                Thread t = new Thread(() -> {
+                    if (updatingUI.compareAndExchange(false, true) == false)
+                        return;
+                    try {
+                        Runtime.getRuntime().exec("dot -Tpng state.dot -o state.png").waitFor();
+                    } catch (IOException | InterruptedException ex) {
+                        Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                    
+                    SwingUtilities.invokeLater(() -> {
+                        GUI.updateNeuralStatePanel();
+                        updatingUI.set(false);
+                    });
                 });
                 t.start();
 

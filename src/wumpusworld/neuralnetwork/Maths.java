@@ -13,4 +13,8 @@ public class Maths {
         else
             return (float) (1 / (1 + Math.exp(-x)));
     }
+    
+    public static float relu(float x) {
+        return Math.max(0, x);
+    }
 }

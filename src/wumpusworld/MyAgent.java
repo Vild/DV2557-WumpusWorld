@@ -3,6 +3,7 @@ package wumpusworld;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import wumpusworld.neuralnetwork.Network;
+import wumpusworld.neuralnetwork.Teacher;
 
 /**
  * Contains starting code for creating your own Wumpus World agent. Currently
@@ -22,7 +23,7 @@ public class MyAgent implements Agent {
      */
     public MyAgent(World world) {
         // TODO: Load the best network here
-        this(world, new Network(world, "/tmp/wumpus/networks/09/network_00.dat"));
+        this(world, new Network(world, String.format("/tmp/wumpus/networks/%02d/network_00.dat", Teacher.GENERATION_LIMIT - 1)));
     }
 
     public MyAgent(World world, Network network) {
@@ -130,16 +131,16 @@ public class MyAgent implements Agent {
         //System.out.printf("New score: %f\n", network.scoreHandler.getScore());
     }
 
+    int lastDirection = 0;
+
     private void turnTo(int i) {
-        if (((w.getDirection() + 2) % 4) != i)
-            network.scoreHandler.changedDirection();
-        if (i < w.getDirection())
-            do {
-                w.doAction(World.A_TURN_LEFT);
-            } while (i != w.getDirection());
-        else
-            do {
-                w.doAction(World.A_TURN_RIGHT);
-            } while (i != w.getDirection());
+        String direction = i < w.getDirection() ? World.A_TURN_LEFT : World.A_TURN_RIGHT;
+
+        do {
+            if (lastDirection != i)
+                network.scoreHandler.changedDirection();
+            w.doAction(direction);
+        } while (i != w.getDirection());
+        lastDirection = i;
     }
 }

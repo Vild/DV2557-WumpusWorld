@@ -7,13 +7,13 @@ package wumpusworld.neuralnetwork;
 public class Teacher {
 
     private Generation currentGeneration;
-    private final int GENERATION_LIMIT = 10;
+    public static final int GENERATION_LIMIT = 16;
 
     public static void main(String[] args) {
         Teacher t = new Teacher();
         t.run();
     }
-    
+
     public Teacher() {
         currentGeneration = new Generation();
     }

@@ -22,14 +22,17 @@ public class OutputLayer extends Layer {
 
     public OutputLayer(Layer before) {
         super(before, 8);
+        this.activator = Activator.sigmoid;
     }
 
     public OutputLayer(Layer before, DataInputStream is) throws IOException {
         super(before, is);
+        this.activator = Activator.sigmoid;
     }
 
     public OutputLayer(Layer before, OutputLayer outputLayer) {
         super(before, outputLayer);
+        this.activator = Activator.sigmoid;
     }
 
     @Override

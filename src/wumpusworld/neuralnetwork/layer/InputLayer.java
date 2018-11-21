@@ -41,8 +41,6 @@ public class InputLayer extends Layer {
 
     @Override
     public void update() {
-        super.update();
-
         setPercepts(0, 0, -1); // up: x -y
         setPercepts(1, 1, -1); // up right: +x -y
 

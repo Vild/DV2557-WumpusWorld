@@ -21,8 +21,8 @@ import wumpusworld.WumpusWorld;
 public class Generation {
 
     int generationNumber = 0;
-    final int CPU_CORES = 8;
-    final int NETWORK_COUNT = 128;
+    final int CPU_CORES = 12;
+    final int NETWORK_COUNT = 256;
     private ArrayList<Network> networks;
     final ThreadPoolExecutor executor;
 

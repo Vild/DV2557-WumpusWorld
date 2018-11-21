@@ -23,15 +23,15 @@ public class ScoreHandler {
         if (done)
             return;
 
-        //tickCounter++;
-        score += 10f;
+        tickCounter++;
+        score += 1f;
     }
 
     public void inHole() {
         if (done)
             return;
 
-        score -= 5f * tickCounter;
+        score -= 5f;
     }
 
     public void finished() {
@@ -39,7 +39,7 @@ public class ScoreHandler {
             return;
 
         done = true;
-        score += 50f * tickCounter;
+        score += 5f;
     }
 
     public void died() {
@@ -47,14 +47,14 @@ public class ScoreHandler {
             return;
 
         done = true;
-        score -= 100f * tickCounter * tickCounter;
+        score -= 100f / tickCounter;
     }
 
     public void invalidMove() {
         if (done)
             return;
 
-        score -= 50f / tickCounter;
+        score -= 40f / tickCounter;
         done = true;
     }
 
@@ -62,14 +62,14 @@ public class ScoreHandler {
         if (done)
             return;
 
-        score += 40f / tickCounter;
+        score += 4f;
     }
 
     public void exploredOldTile() {
         if (done)
             return;
 
-        score += 20f / tickCounter;
+        score += 2f;
     }
 
     public float getScore() {
@@ -77,11 +77,11 @@ public class ScoreHandler {
     }
 
     public void noMoreMoves() {
-        score -= 25f;
+        score -= 5f;
     }
     
     public void changedDirection() {
-        score += 40f;
+        score += 10f;
     }
 
     public void submitWorldScore(int score) {
