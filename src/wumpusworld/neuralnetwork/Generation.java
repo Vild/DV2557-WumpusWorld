@@ -22,7 +22,7 @@ public class Generation {
 
     int generationNumber = 0;
     final int CPU_CORES = 12;
-    final int NETWORK_COUNT = 256;
+    final int NETWORK_COUNT = 1024*2;
     private ArrayList<Network> networks;
     final ThreadPoolExecutor executor;
 
@@ -62,8 +62,9 @@ public class Generation {
     }
 
     public void run() {
+        long seed = System.currentTimeMillis();
         for (int i = 0; i < NETWORK_COUNT; i++)
-            executor.execute(new ChildLearningTask(networks.get(i)));
+            executor.execute(new ChildLearningTask(networks.get(i), seed));
         executor.shutdown();
         System.out.println();
         while (!executor.isTerminated()) {
@@ -119,9 +120,11 @@ public class Generation {
 
         private final int MAP_COUNT = 8;
         private final Network network;
+        private final long seed;
 
-        public ChildLearningTask(Network network) {
+        public ChildLearningTask(Network network, long seed) {
             this.network = network;
+            this.seed = seed;
         }
 
         @Override
@@ -134,7 +137,7 @@ public class Generation {
                 /*if (i < maps.size())
                     world = maps.get(i).generateWorld();
                 else*/
-                world = MapGenerator.getRandomMap((int) System.currentTimeMillis()).generateWorld();
+                world = MapGenerator.getRandomMap((int) (seed + i)).generateWorld();
 
                 agent.setWorld(world);
                 int actions = 0;

@@ -7,7 +7,7 @@ package wumpusworld.neuralnetwork;
 public class Teacher {
 
     private Generation currentGeneration;
-    public static final int GENERATION_LIMIT = 16;
+    public static final int GENERATION_LIMIT = 64;
 
     public static void main(String[] args) {
         Teacher t = new Teacher();

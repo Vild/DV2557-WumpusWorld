@@ -46,7 +46,7 @@ public class Network {
     public InputLayer input;
     public Layer hiddenLayer1;
     public Layer hiddenLayer2;
-    public Layer hiddenLayer3;
+    //public Layer hiddenLayer3;
 
     public OutputLayer output;
 
@@ -62,9 +62,10 @@ public class Network {
         hiddenLayer1.randomize();
         hiddenLayer2 = new Layer(hiddenLayer1, input.getNeuronCount());
         hiddenLayer2.randomize();
-        hiddenLayer3 = new Layer(hiddenLayer2, input.getNeuronCount());
+        /*hiddenLayer3 = new Layer(hiddenLayer2, input.getNeuronCount());
         hiddenLayer3.randomize();
-        output = new OutputLayer(hiddenLayer3);
+        output = new OutputLayer(hiddenLayer3);*/
+        output = new OutputLayer(hiddenLayer2);
         output.randomize();
 
         scoreHandler = new ScoreHandler();
@@ -75,8 +76,9 @@ public class Network {
             input = new InputLayer(world, is);
             hiddenLayer1 = new Layer(input, is);
             hiddenLayer2 = new Layer(hiddenLayer1, is);
-            hiddenLayer3 = new Layer(hiddenLayer2, is);
-            output = new OutputLayer(hiddenLayer3, is);
+            //hiddenLayer3 = new Layer(hiddenLayer2, is);
+            //output = new OutputLayer(hiddenLayer3, is);
+            output = new OutputLayer(hiddenLayer2, is);
             scoreHandler = new ScoreHandler();
         } catch (IOException ex) {
             Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
@@ -87,8 +89,9 @@ public class Network {
         input = new InputLayer(other.input);
         hiddenLayer1 = new Layer(this.input, other.hiddenLayer1);
         hiddenLayer2 = new Layer(this.hiddenLayer1, other.hiddenLayer2);
-        hiddenLayer3 = new Layer(this.hiddenLayer2, other.hiddenLayer3);
-        output = new OutputLayer(this.hiddenLayer3, other.output);
+        //hiddenLayer3 = new Layer(this.hiddenLayer2, other.hiddenLayer3);
+        //output = new OutputLayer(this.hiddenLayer3, other.output);
+        output = new OutputLayer(this.hiddenLayer2, other.output);
         scoreHandler = new ScoreHandler();
     }
     
@@ -102,7 +105,7 @@ public class Network {
 
         newNetwork.hiddenLayer1.combine(other.hiddenLayer1);
         newNetwork.hiddenLayer2.combine(other.hiddenLayer2);
-        newNetwork.hiddenLayer3.combine(other.hiddenLayer3);
+        //newNetwork.hiddenLayer3.combine(other.hiddenLayer3);
         newNetwork.output.combine(other.output);
 
         return newNetwork;
@@ -111,7 +114,7 @@ public class Network {
     public void addMutations() {
         hiddenLayer1.mutate();
         hiddenLayer2.mutate();
-        hiddenLayer3.mutate();
+        //hiddenLayer3.mutate();
         output.mutate();
     }
 
@@ -134,8 +137,9 @@ public class Network {
         input.exportState(sb, 0);
         hiddenLayer1.exportState(sb, 1);
         hiddenLayer2.exportState(sb, 2);
-        hiddenLayer2.exportState(sb, 3);
-        output.exportState(sb, 4);
+        //hiddenLayer3.exportState(sb, 3);
+        //output.exportState(sb, 4);
+        output.exportState(sb, 3);
 
         if (GUI.instance != null)
             try (FileWriter fw = new FileWriter("state.dot")) {
@@ -199,7 +203,7 @@ public class Network {
                 input.save(os);
                 hiddenLayer1.save(os);
                 hiddenLayer2.save(os);
-                hiddenLayer3.save(os);
+//                hiddenLayer3.save(os);
                 output.save(os);
             }
 
